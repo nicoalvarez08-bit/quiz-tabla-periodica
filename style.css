@@ -1,7 +1,7 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #1e1e2f, #3b3b6d);
+  background: radial-gradient(circle at top, #2d1b69, #0b061f);
   color: white;
 }
 
@@ -9,69 +9,93 @@ body {
   display: none;
 }
 
-.card {
-  width: 300px;
-  margin: 100px auto;
-  padding: 20px;
-  background: #2c2c54;
-  border-radius: 10px;
+/* LOGIN */
+.login-screen {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-card {
+  background: #1f1347;
+  padding: 30px;
+  border-radius: 12px;
   text-align: center;
+  box-shadow: 0 0 20px #000;
 }
 
-.card input {
-  width: 90%;
+.login-card input {
+  width: 100%;
   padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 5px;
+  margin: 15px 0;
+  border-radius: 6px;
   border: none;
 }
 
-.card button {
+.login-card button {
   padding: 10px 20px;
+  background: #7f5cff;
   border: none;
-  background: #5f27cd;
   color: white;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
 }
 
-.game-container {
+/* JUEGO */
+.layout {
   display: flex;
   padding: 20px;
   gap: 20px;
 }
 
-.quiz {
+.game-panel {
   flex: 2;
-  background: #2c2c54;
+  background: #1f1347;
   padding: 20px;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
 #answers button {
-  display: block;
   width: 100%;
-  margin: 10px 0;
-  padding: 10px;
-  background: #341f97;
+  margin: 8px 0;
+  padding: 12px;
+  background: #3a2a85;
   border: none;
   color: white;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
 }
 
 #answers button:hover {
-  background: #5f27cd;
+  background: #7f5cff;
 }
 
-.ranking {
+.points {
+  margin-top: 15px;
+}
+
+.message {
+  margin-top: 15px;
+  padding: 10px;
+  background: #2ecc71;
+  border-radius: 6px;
+  text-align: center;
+}
+
+/* RANKING */
+.ranking-panel {
   flex: 1;
-  background: #2c2c54;
+  background: #1f1347;
   padding: 20px;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
-.ranking ul {
+.ranking-panel ul {
   list-style: none;
   padding: 0;
+}
+
+.ranking-panel li {
+  margin-bottom: 6px;
 }

@@ -1,77 +1,40 @@
 // 🔐 SUPABASE
-const SUPABASE_URL = "https://gihfgjidbpfnsgwrvvxv.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdpaGZnamlkYnBmbnNnd3J2dnh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1MDI0MzUsImV4cCI6MjA4NDA3ODQzNX0.EvT6r8wN0Aw-MoTSr2-ENzTKAS41A22ATj7ktsqXAzw";
+const SUPABASE_URL = "https://TU-PROYECTO.supabase.co";
+const SUPABASE_ANON_KEY = "TU_ANON_KEY";
 
 const supabaseClient = supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
 );
 
-// 🧑 JUGADOR
+// JUGADOR
 let nickname = "";
 let points = 0;
+let level = 0;
+let questionIndex = 0;
 
-// 🎮 NIVELES
+// NIVELES
 const levels = [
   {
     name: "Nivel 1",
     questions: [
-      {
-        q: "¿Cuál es el símbolo del Hidrógeno?",
-        options: ["H", "O", "He"],
-        correct: "H"
-      },
-      {
-        q: "¿Cuál es el símbolo del Oxígeno?",
-        options: ["O", "Ox", "Og"],
-        correct: "O"
-      }
+      { q: "Símbolo del Hidrógeno", options: ["H", "He", "O"], correct: "H" },
+      { q: "Símbolo del Oxígeno", options: ["O", "Ox", "Og"], correct: "O" }
     ]
   },
   {
     name: "Nivel 2",
     questions: [
-      {
-        q: "¿Qué elemento tiene símbolo Na?",
-        options: ["Neón", "Sodio", "Nitrógeno"],
-        correct: "Sodio"
-      },
-      {
-        q: "¿Cuál es el símbolo del Carbono?",
-        options: ["C", "Ca", "Co"],
-        correct: "C"
-      }
-    ]
-  },
-  {
-    name: "Nivel 3",
-    questions: [
-      {
-        q: "¿Cuál es el símbolo del Hierro?",
-        options: ["Fe", "Ir", "H"],
-        correct: "Fe"
-      },
-      {
-        q: "¿Qué elemento es un gas noble?",
-        options: ["Oxígeno", "Helio", "Carbono"],
-        correct: "Helio"
-      }
+      { q: "Símbolo del Sodio", options: ["So", "Na", "S"], correct: "Na" },
+      { q: "Símbolo del Carbono", options: ["C", "Ca", "Co"], correct: "C" }
     ]
   }
 ];
 
-let currentLevel = 0;
-let currentQuestion = 0;
-
-// 🔑 LOGIN
+// LOGIN
 async function login() {
-  const input = document.getElementById("nicknameInput");
-  nickname = input.value.trim();
-
-  if (!nickname) {
-    alert("Escribe un nickname");
-    return;
-  }
+  nickname = document.getElementById("nicknameInput").value.trim();
+  if (!nickname) return;
 
   const { data } = await supabaseClient
     .from("users")
@@ -81,7 +44,7 @@ async function login() {
 
   if (!data) {
     await supabaseClient.from("users").insert({
-      nickname: nickname,
+      nickname,
       total_points: 0
     });
     points = 0;
@@ -97,13 +60,13 @@ async function login() {
   loadRanking();
 }
 
-// ❓ PREGUNTAS
+// CARGAR PREGUNTA
 function loadQuestion() {
-  const level = levels[currentLevel];
-  const q = level.questions[currentQuestion];
+  const lvl = levels[level];
+  const q = lvl.questions[questionIndex];
 
-  document.getElementById("question").innerText =
-    `${level.name} - ${q.q}`;
+  document.getElementById("levelTitle").innerText = lvl.name;
+  document.getElementById("question").innerText = q.q;
 
   const answers = document.getElementById("answers");
   answers.innerHTML = "";
@@ -111,44 +74,48 @@ function loadQuestion() {
   q.options.forEach(opt => {
     const btn = document.createElement("button");
     btn.innerText = opt;
-    btn.onclick = () => checkAnswer(opt, q.correct);
+    btn.onclick = () => answer(opt, q.correct);
     answers.appendChild(btn);
   });
 }
 
-// ✅ RESPUESTA
-async function checkAnswer(answer, correct) {
-  if (answer === correct) {
+// RESPUESTA
+async function answer(opt, correct) {
+  const msg = document.getElementById("message");
+
+  if (opt === correct) {
     points += 10;
-    document.getElementById("points").innerText = points;
+    msg.innerText = "✅ Correcto";
+    msg.classList.remove("hidden");
 
     await supabaseClient
       .from("users")
       .update({ total_points: points })
       .eq("nickname", nickname);
 
-    currentQuestion++;
+    questionIndex++;
 
-    if (currentQuestion >= levels[currentLevel].questions.length) {
-      currentLevel++;
-      currentQuestion = 0;
+    if (questionIndex >= levels[level].questions.length) {
+      level++;
+      questionIndex = 0;
 
-      if (currentLevel >= levels.length) {
-        alert("🎉 Terminaste todos los niveles");
+      if (level >= levels.length) {
+        msg.innerText = "🎉 Juego completado";
+        loadRanking();
         return;
-      } else {
-        alert("✅ Pasaste al " + levels[currentLevel].name);
       }
     }
 
-    loadQuestion();
+    document.getElementById("points").innerText = points;
     loadRanking();
+    loadQuestion();
   } else {
-    alert("❌ Incorrecto");
+    msg.innerText = "❌ Incorrecto";
+    msg.classList.remove("hidden");
   }
 }
 
-// 🏆 RANKING
+// RANKING
 async function loadRanking() {
   const { data } = await supabaseClient
     .from("users")
@@ -159,9 +126,9 @@ async function loadRanking() {
   const list = document.getElementById("rankingList");
   list.innerHTML = "";
 
-  data.forEach(user => {
+  data.forEach(u => {
     const li = document.createElement("li");
-    li.innerText = `${user.nickname} - ${user.total_points}`;
+    li.innerText = `${u.nickname} - ${u.total_points}`;
     list.appendChild(li);
   });
 }

@@ -1,34 +1,36 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Quiz Tabla Periódica</title>
 
-  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <!-- LOGIN -->
-  <div id="login" class="card">
-    <h1>🧪 Quiz Tabla Periódica</h1>
-    <input type="text" id="nicknameInput" placeholder="Escribe tu nickname" />
-    <button onclick="login()">Entrar</button>
+  <div id="login" class="login-screen">
+    <div class="login-card">
+      <h1>🧪 Quiz Tabla Periódica</h1>
+      <input id="nicknameInput" placeholder="Tu nickname">
+      <button onclick="login()">Jugar</button>
+    </div>
   </div>
 
   <!-- JUEGO -->
   <div id="game" class="hidden">
-    <div class="game-container">
+    <div class="layout">
 
-      <div class="quiz">
-        <h2 id="question">Pregunta</h2>
+      <div class="game-panel">
+        <h2 id="levelTitle"></h2>
+        <p id="question"></p>
         <div id="answers"></div>
-        <p>⭐ Puntos: <span id="points">0</span></p>
+        <p class="points">⭐ Puntos: <span id="points">0</span></p>
+        <div id="message" class="message hidden"></div>
       </div>
 
-      <div class="ranking">
+      <div class="ranking-panel">
         <h3>🏆 Ranking</h3>
         <ul id="rankingList"></ul>
       </div>
