@@ -1,6 +1,6 @@
 // 🔗 SUPABASE (USA LAS MISMAS DE TUS OTROS JUEGOS)
 const SUPABASE_URL = "https://gihfgjidbpfnsgwrvvxv.supabase.co";
-const SUPABASE_ANON_KEY = "PEGA_AQUI_TU_ANON_KEY";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdpaGZnamlkYnBmbnNnd3J2dnh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1MDI0MzUsImV4cCI6MjA4NDA3ODQzNX0.EvT6r8wN0Aw-MoTSr2-ENzTKAS41A22ATj7ktsqXAzw";
 
 const supabase = supabase.createClient(
   SUPABASE_URL,
