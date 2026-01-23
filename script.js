@@ -1,138 +1,167 @@
-// 🔗 SUPABASE (USA LAS MISMAS DE TUS OTROS JUEGOS)
-const SUPABASE_URL = "https://gihfgjidbpfnsgwrvvxv.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdpaGZnamlkYnBmbnNnd3J2dnh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1MDI0MzUsImV4cCI6MjA4NDA3ODQzNX0.EvT6r8wN0Aw-MoTSr2-ENzTKAS41A22ATj7ktsqXAzw";
+// 🔐 SUPABASE
+const SUPABASE_URL = "https://TU-PROYECTO.supabase.co";
+const SUPABASE_ANON_KEY = "TU_ANON_KEY_AQUI";
 
-const supabase = supabase.createClient(
+const supabaseClient = supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
 );
 
-// 🧪 Preguntas
-const questions = [
+// 🧑 JUGADOR
+let nickname = "";
+let points = 0;
+
+// 🎮 NIVELES
+const levels = [
   {
-    q: "¿Cuál es el símbolo del Hidrógeno?",
-    options: ["H", "O", "He"],
-    answer: "H"
+    name: "Nivel 1",
+    questions: [
+      {
+        q: "¿Cuál es el símbolo del Hidrógeno?",
+        options: ["H", "O", "He"],
+        correct: "H"
+      },
+      {
+        q: "¿Cuál es el símbolo del Oxígeno?",
+        options: ["O", "Ox", "Og"],
+        correct: "O"
+      }
+    ]
   },
   {
-    q: "¿Qué elemento tiene número atómico 6?",
-    options: ["Carbono", "Oxígeno", "Nitrógeno"],
-    answer: "Carbono"
+    name: "Nivel 2",
+    questions: [
+      {
+        q: "¿Qué elemento tiene símbolo Na?",
+        options: ["Neón", "Sodio", "Nitrógeno"],
+        correct: "Sodio"
+      },
+      {
+        q: "¿Cuál es el símbolo del Carbono?",
+        options: ["C", "Ca", "Co"],
+        correct: "C"
+      }
+    ]
   },
   {
-    q: "¿Cuál es un gas noble?",
-    options: ["Neón", "Hierro", "Sodio"],
-    answer: "Neón"
+    name: "Nivel 3",
+    questions: [
+      {
+        q: "¿Cuál es el símbolo del Hierro?",
+        options: ["Fe", "Ir", "H"],
+        correct: "Fe"
+      },
+      {
+        q: "¿Qué elemento es un gas noble?",
+        options: ["Oxígeno", "Helio", "Carbono"],
+        correct: "Helio"
+      }
+    ]
   }
 ];
 
-let current = 0;
-let score = 0;
-let nickname = "";
+let currentLevel = 0;
+let currentQuestion = 0;
 
-// LOGIN
+// 🔑 LOGIN
 async function login() {
-  const input = document.getElementById("nicknameInput").value.trim();
-  if (!input) {
-    alert("Escribe un nombre");
+  const input = document.getElementById("nicknameInput");
+  nickname = input.value.trim();
+
+  if (!nickname) {
+    alert("Escribe un nickname");
     return;
   }
 
-  nickname = input;
-  localStorage.setItem("nickname", nickname);
-
-  document.getElementById("playerName").textContent = nickname;
-  document.getElementById("loginScreen").classList.add("hidden");
-  document.getElementById("gameScreen").classList.remove("hidden");
-
-  await ensureUser();
-  loadRanking();
-  showQuestion();
-}
-
-// Crear usuario si no existe
-async function ensureUser() {
-  const { data } = await supabase
+  const { data } = await supabaseClient
     .from("users")
-    .select("nickname")
+    .select("*")
     .eq("nickname", nickname)
     .single();
 
   if (!data) {
-    await supabase.from("users").insert({
+    await supabaseClient.from("users").insert({
       nickname: nickname,
       total_points: 0
     });
+    points = 0;
+  } else {
+    points = data.total_points;
   }
+
+  document.getElementById("points").innerText = points;
+  document.getElementById("login").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+
+  loadQuestion();
+  loadRanking();
 }
 
-// Mostrar pregunta
-function showQuestion() {
-  if (current >= questions.length) {
-    endGame();
-    return;
-  }
+// ❓ PREGUNTAS
+function loadQuestion() {
+  const level = levels[currentLevel];
+  const q = level.questions[currentQuestion];
 
-  const q = questions[current];
-  document.getElementById("question").textContent = q.q;
+  document.getElementById("question").innerText =
+    `${level.name} - ${q.q}`;
 
   const answers = document.getElementById("answers");
   answers.innerHTML = "";
 
   q.options.forEach(opt => {
     const btn = document.createElement("button");
-    btn.textContent = opt;
-    btn.className = "answer-btn";
-    btn.onclick = () => checkAnswer(opt);
+    btn.innerText = opt;
+    btn.onclick = () => checkAnswer(opt, q.correct);
     answers.appendChild(btn);
   });
 }
 
-// Respuesta
-function checkAnswer(opt) {
-  if (opt === questions[current].answer) {
-    score += 10;
-    document.getElementById("score").textContent = score;
+// ✅ RESPUESTA
+async function checkAnswer(answer, correct) {
+  if (answer === correct) {
+    points += 10;
+    document.getElementById("points").innerText = points;
+
+    await supabaseClient
+      .from("users")
+      .update({ total_points: points })
+      .eq("nickname", nickname);
+
+    currentQuestion++;
+
+    if (currentQuestion >= levels[currentLevel].questions.length) {
+      currentLevel++;
+      currentQuestion = 0;
+
+      if (currentLevel >= levels.length) {
+        alert("🎉 Terminaste todos los niveles");
+        return;
+      } else {
+        alert("✅ Pasaste al " + levels[currentLevel].name);
+      }
+    }
+
+    loadQuestion();
+    loadRanking();
+  } else {
+    alert("❌ Incorrecto");
   }
-  current++;
-  showQuestion();
 }
 
-// Final del juego
-async function endGame() {
-  alert("🎉 Juego terminado. Puntos ganados: " + score);
-
-  const { data: user } = await supabase
-    .from("users")
-    .select("total_points")
-    .eq("nickname", nickname)
-    .single();
-
-  await supabase
-    .from("users")
-    .update({
-      total_points: user.total_points + score,
-      updated_at: new Date()
-    })
-    .eq("nickname", nickname);
-
-  loadRanking();
-}
-
-// Ranking global
+// 🏆 RANKING
 async function loadRanking() {
-  const { data } = await supabase
+  const { data } = await supabaseClient
     .from("users")
     .select("nickname, total_points")
     .order("total_points", { ascending: false })
     .limit(5);
 
-  const list = document.getElementById("ranking");
+  const list = document.getElementById("rankingList");
   list.innerHTML = "";
 
-  data.forEach(u => {
+  data.forEach(user => {
     const li = document.createElement("li");
-    li.textContent = `${u.nickname} - ${u.total_points} pts`;
+    li.innerText = `${user.nickname} - ${user.total_points}`;
     list.appendChild(li);
   });
 }

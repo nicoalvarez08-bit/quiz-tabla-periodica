@@ -1,73 +1,77 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #1e1e2f, #4b4bbd);
+  background: linear-gradient(135deg, #1e1e2f, #3b3b6d);
   color: white;
-  min-height: 100vh;
-}
-
-.screen {
-  max-width: 400px;
-  margin: 80px auto;
-  background: #2c2c54;
-  padding: 25px;
-  border-radius: 16px;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,.4);
 }
 
 .hidden {
   display: none;
 }
 
-input {
+.card {
+  width: 300px;
+  margin: 100px auto;
+  padding: 20px;
+  background: #2c2c54;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.card input {
   width: 90%;
   padding: 10px;
-  margin: 10px 0;
-  border-radius: 8px;
+  margin-bottom: 10px;
+  border-radius: 5px;
   border: none;
-  font-size: 16px;
 }
 
-button {
+.card button {
   padding: 10px 20px;
-  border-radius: 10px;
   border: none;
-  font-size: 16px;
-  cursor: pointer;
-  background: #706fd3;
+  background: #5f27cd;
   color: white;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
-button:hover {
-  background: #34ace0;
+.game-container {
+  display: flex;
+  padding: 20px;
+  gap: 20px;
 }
 
-.card {
-  margin: 20px 0;
+.quiz {
+  flex: 2;
+  background: #2c2c54;
+  padding: 20px;
+  border-radius: 10px;
 }
 
-.answer-btn {
+#answers button {
   display: block;
   width: 100%;
-  margin: 8px 0;
+  margin: 10px 0;
   padding: 10px;
-  background: #40407a;
+  background: #341f97;
   border: none;
-  border-radius: 8px;
   color: white;
+  border-radius: 5px;
   cursor: pointer;
 }
 
-.answer-btn:hover {
-  background: #227093;
+#answers button:hover {
+  background: #5f27cd;
 }
 
-ul {
+.ranking {
+  flex: 1;
+  background: #2c2c54;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.ranking ul {
   list-style: none;
   padding: 0;
-}
-
-li {
-  margin: 5px 0;
 }
