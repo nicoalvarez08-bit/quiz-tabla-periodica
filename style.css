@@ -1,101 +1,38 @@
 body {
-  margin: 0;
   font-family: Arial, sans-serif;
-  background: radial-gradient(circle at top, #2d1b69, #0b061f);
+  background: #0f172a;
   color: white;
+}
+
+.container {
+  max-width: 500px;
+  margin: auto;
+  text-align: center;
+}
+
+input, button {
+  padding: 10px;
+  margin: 5px;
+}
+
+button {
+  cursor: pointer;
 }
 
 .hidden {
   display: none;
 }
 
-/* LOGIN */
-.login-screen {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.login-card {
-  background: #1f1347;
-  padding: 30px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 0 20px #000;
-}
-
-.login-card input {
-  width: 100%;
-  padding: 10px;
-  margin: 15px 0;
-  border-radius: 6px;
-  border: none;
-}
-
-.login-card button {
-  padding: 10px 20px;
-  background: #7f5cff;
-  border: none;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-/* JUEGO */
-.layout {
-  display: flex;
-  padding: 20px;
-  gap: 20px;
-}
-
-.game-panel {
-  flex: 2;
-  background: #1f1347;
-  padding: 20px;
-  border-radius: 12px;
-}
-
 #answers button {
+  display: block;
   width: 100%;
-  margin: 8px 0;
-  padding: 12px;
-  background: #3a2a85;
-  border: none;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
+  margin: 5px 0;
 }
 
-#answers button:hover {
-  background: #7f5cff;
+.correct {
+  color: #22c55e;
 }
 
-.points {
-  margin-top: 15px;
-}
-
-.message {
-  margin-top: 15px;
-  padding: 10px;
-  background: #2ecc71;
-  border-radius: 6px;
-  text-align: center;
-}
-
-/* RANKING */
-.ranking-panel {
-  flex: 1;
-  background: #1f1347;
-  padding: 20px;
-  border-radius: 12px;
-}
-
-.ranking-panel ul {
-  list-style: none;
-  padding: 0;
-}
-
-.ranking-panel li {
-  margin-bottom: 6px;
+.wrong {
+  color: #ef4444;
 }

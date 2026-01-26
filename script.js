@@ -1,134 +1,153 @@
-// 🔐 SUPABASE
-const SUPABASE_URL = "https://TU-PROYECTO.supabase.co";
-const SUPABASE_ANON_KEY = "TU_ANON_KEY";
+// ================================
+// 🔑 SUPABASE CONFIG
+// ================================
+const supabaseUrl = "https://gihfgjidbpfnsgwrvvxv.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdpaGZnamlkYnBmbnNnd3J2dnh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1MDI0MzUsImV4cCI6MjA4NDA3ODQzNX0.EvT6r8wN0Aw-MoTSr2-ENzTKAS41A22ATj7ktsqXAzw";
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-const supabaseClient = supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
+// ================================
+// 🎮 ESTADO GLOBAL
+// ================================
+let user = null;
+let totalPoints = 0;
+let level = 1;
 
-// JUGADOR
-let nickname = "";
-let points = 0;
-let level = 0;
-let questionIndex = 0;
-
-// NIVELES
-const levels = [
+// ================================
+// 🧪 PREGUNTAS (EJEMPLO NIVEL 1)
+// ================================
+const questions = [
   {
-    name: "Nivel 1",
-    questions: [
-      { q: "Símbolo del Hidrógeno", options: ["H", "He", "O"], correct: "H" },
-      { q: "Símbolo del Oxígeno", options: ["O", "Ox", "Og"], correct: "O" }
-    ]
+    question: "¿Cuál es el símbolo del Hidrógeno?",
+    answers: ["H", "He", "O"],
+    correct: "H"
   },
   {
-    name: "Nivel 2",
-    questions: [
-      { q: "Símbolo del Sodio", options: ["So", "Na", "S"], correct: "Na" },
-      { q: "Símbolo del Carbono", options: ["C", "Ca", "Co"], correct: "C" }
-    ]
+    question: "¿Número atómico del Oxígeno?",
+    answers: ["6", "8", "10"],
+    correct: "8"
   }
 ];
 
-// LOGIN
-async function login() {
-  nickname = document.getElementById("nicknameInput").value.trim();
+// ================================
+// 🎯 ELEMENTOS HTML
+// ================================
+const loginDiv = document.getElementById("login");
+const gameDiv = document.getElementById("game");
+const questionEl = document.getElementById("question");
+const answersEl = document.getElementById("answers");
+const feedbackEl = document.getElementById("feedback");
+const scoreEl = document.getElementById("score");
+const rankingList = document.getElementById("rankingList");
+
+// ================================
+// 🚀 LOGIN
+// ================================
+document.getElementById("startBtn").onclick = async () => {
+  const nickname = document.getElementById("nickname").value.trim();
   if (!nickname) return;
 
-  const { data } = await supabaseClient
+  let { data } = await supabase
     .from("users")
     .select("*")
     .eq("nickname", nickname)
     .single();
 
   if (!data) {
-    await supabaseClient.from("users").insert({
-      nickname,
-      total_points: 0
-    });
-    points = 0;
+    const res = await supabase
+      .from("users")
+      .insert({ nickname, total_points: 0 })
+      .select()
+      .single();
+    user = res.data;
   } else {
-    points = data.total_points;
+    user = data;
   }
 
-  document.getElementById("points").innerText = points;
-  document.getElementById("login").classList.add("hidden");
-  document.getElementById("game").classList.remove("hidden");
+  totalPoints = user.total_points || 0;
+  scoreEl.textContent = totalPoints;
 
-  loadQuestion();
+  loginDiv.classList.add("hidden");
+  gameDiv.classList.remove("hidden");
+
+  loadQuestion(0);
   loadRanking();
-}
+};
 
-// CARGAR PREGUNTA
-function loadQuestion() {
-  const lvl = levels[level];
-  const q = lvl.questions[questionIndex];
+// ================================
+// ❓ CARGAR PREGUNTA
+// ================================
+function loadQuestion(index) {
+  const q = questions[index];
+  questionEl.textContent = q.question;
+  answersEl.innerHTML = "";
+  feedbackEl.textContent = "";
 
-  document.getElementById("levelTitle").innerText = lvl.name;
-  document.getElementById("question").innerText = q.q;
-
-  const answers = document.getElementById("answers");
-  answers.innerHTML = "";
-
-  q.options.forEach(opt => {
+  q.answers.forEach(ans => {
     const btn = document.createElement("button");
-    btn.innerText = opt;
-    btn.onclick = () => answer(opt, q.correct);
-    answers.appendChild(btn);
+    btn.textContent = ans;
+    btn.onclick = () => checkAnswer(ans, q.correct, index);
+    answersEl.appendChild(btn);
   });
 }
 
-// RESPUESTA
-async function answer(opt, correct) {
-  const msg = document.getElementById("message");
+// ================================
+// ✅ VALIDAR RESPUESTA
+// ================================
+async function checkAnswer(answer, correct, index) {
+  if (answer === correct) {
+    feedbackEl.textContent = "✔ Correcto";
+    feedbackEl.className = "correct";
 
-  if (opt === correct) {
-    points += 10;
-    msg.innerText = "✅ Correcto";
-    msg.classList.remove("hidden");
+    totalPoints += 10;
+    scoreEl.textContent = totalPoints;
 
-    await supabaseClient
+    await supabase
       .from("users")
-      .update({ total_points: points })
-      .eq("nickname", nickname);
-
-    questionIndex++;
-
-    if (questionIndex >= levels[level].questions.length) {
-      level++;
-      questionIndex = 0;
-
-      if (level >= levels.length) {
-        msg.innerText = "🎉 Juego completado";
-        loadRanking();
-        return;
-      }
-    }
-
-    document.getElementById("points").innerText = points;
-    loadRanking();
-    loadQuestion();
+      .update({ total_points: totalPoints })
+      .eq("id", user.id);
   } else {
-    msg.innerText = "❌ Incorrecto";
-    msg.classList.remove("hidden");
+    feedbackEl.textContent = "✖ Incorrecto";
+    feedbackEl.className = "wrong";
+  }
+
+  if (index + 1 < questions.length) {
+    setTimeout(() => loadQuestion(index + 1), 800);
   }
 }
 
-// RANKING
+// ================================
+// 🏆 RANKING GLOBAL (CORRECTO)
+// ================================
 async function loadRanking() {
-  const { data } = await supabaseClient
+  const { data } = await supabase
     .from("users")
     .select("nickname, total_points")
     .order("total_points", { ascending: false })
     .limit(5);
 
-  const list = document.getElementById("rankingList");
-  list.innerHTML = "";
+  rankingList.innerHTML = "";
 
   data.forEach(u => {
     const li = document.createElement("li");
-    li.innerText = `${u.nickname} - ${u.total_points}`;
-    list.appendChild(li);
+    li.textContent = `${u.nickname} - ${u.total_points}`;
+    rankingList.appendChild(li);
   });
 }
+
+// ================================
+// 🔴 REALTIME (RANKING EN VIVO)
+// ================================
+supabase
+  .channel("ranking-realtime")
+  .on(
+    "postgres_changes",
+    {
+      event: "UPDATE",
+      schema: "public",
+      table: "users"
+    },
+    () => {
+      loadRanking();
+    }
+  )
+  .subscribe();
