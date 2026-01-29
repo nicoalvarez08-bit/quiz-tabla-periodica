@@ -1,18 +1,19 @@
 // ================================
-// 🔑 SUPABASE CONFIG (CORRECTO)
+// 🔑 SUPABASE CONFIG
 // ================================
 const supabaseUrl = "TU_SUPABASE_URL";
 const supabaseKey = "TU_SUPABASE_ANON_KEY";
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
 // ================================
 // 🎮 ESTADO GLOBAL
 // ================================
 let user = null;
 let totalPoints = 0;
+let level = 1;
 
 // ================================
-// 🧪 PREGUNTAS
+// 🧪 PREGUNTAS (EJEMPLO NIVEL 1)
 // ================================
 const questions = [
   {
@@ -39,30 +40,24 @@ const scoreEl = document.getElementById("score");
 const rankingList = document.getElementById("rankingList");
 
 // ================================
-// 🚀 LOGIN (ROBUSTO)
+// 🚀 LOGIN
 // ================================
 document.getElementById("startBtn").onclick = async () => {
   const nickname = document.getElementById("nickname").value.trim();
   if (!nickname) return;
 
-  const { data, error } = await supabaseClient
+  let { data } = await supabase
     .from("users")
     .select("*")
     .eq("nickname", nickname)
-    .maybeSingle(); // 👈 CLAVE
-
-  if (error) {
-    console.error(error);
-    return;
-  }
+    .single();
 
   if (!data) {
-    const res = await supabaseClient
+    const res = await supabase
       .from("users")
       .insert({ nickname, total_points: 0 })
       .select()
       .single();
-
     user = res.data;
   } else {
     user = data;
@@ -96,7 +91,7 @@ function loadQuestion(index) {
 }
 
 // ================================
-// ✅ RESPUESTA
+// ✅ VALIDAR RESPUESTA
 // ================================
 async function checkAnswer(answer, correct, index) {
   if (answer === correct) {
@@ -106,7 +101,7 @@ async function checkAnswer(answer, correct, index) {
     totalPoints += 10;
     scoreEl.textContent = totalPoints;
 
-    await supabaseClient
+    await supabase
       .from("users")
       .update({ total_points: totalPoints })
       .eq("id", user.id);
@@ -121,10 +116,10 @@ async function checkAnswer(answer, correct, index) {
 }
 
 // ================================
-// 🏆 RANKING
+// 🏆 RANKING GLOBAL (CORRECTO)
 // ================================
 async function loadRanking() {
-  const { data } = await supabaseClient
+  const { data } = await supabase
     .from("users")
     .select("nickname, total_points")
     .order("total_points", { ascending: false })
@@ -140,9 +135,9 @@ async function loadRanking() {
 }
 
 // ================================
-// 🔴 REALTIME
+// 🔴 REALTIME (RANKING EN VIVO)
 // ================================
-supabaseClient
+supabase
   .channel("ranking-realtime")
   .on(
     "postgres_changes",
@@ -151,11 +146,8 @@ supabaseClient
       schema: "public",
       table: "users"
     },
-    () => loadRanking()
+    () => {
+      loadRanking();
+    }
   )
   .subscribe();
-
-// ================================
-// 🔁 POLLING RESPALDO
-// ================================
-setInterval(loadRanking, 5000);
