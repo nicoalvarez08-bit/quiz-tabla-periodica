@@ -1,8 +1,8 @@
 // ================================
 // 🔑 SUPABASE CONFIG
 // ================================
-const supabaseUrl = "TU_SUPABASE_URL";
-const supabaseKey = "TU_SUPABASE_ANON_KEY";
+const supabaseUrl = "https://gihfgjidbpfnsgwrvvxv.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdpaGZnamlkYnBmbnNnd3J2dnh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1MDI0MzUsImV4cCI6MjA4NDA3ODQzNX0.EvT6r8wN0Aw-MoTSr2-ENzTKAS41A22ATj7ktsqXAzw";
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
 // ================================
