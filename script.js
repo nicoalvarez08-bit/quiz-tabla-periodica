@@ -1,19 +1,18 @@
 // ================================
-// 🔑 SUPABASE CONFIG
+// 🔑 SUPABASE CONFIG (CORRECTO)
 // ================================
-const supabaseUrl = "https://gihfgjidbpfnsgwrvvxv.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdpaGZnamlkYnBmbnNnd3J2dnh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1MDI0MzUsImV4cCI6MjA4NDA3ODQzNX0.EvT6r8wN0Aw-MoTSr2-ENzTKAS41A22ATj7ktsqXAzw";
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+const supabaseUrl = "TU_SUPABASE_URL";
+const supabaseKey = "TU_SUPABASE_ANON_KEY";
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
 // ================================
 // 🎮 ESTADO GLOBAL
 // ================================
 let user = null;
 let totalPoints = 0;
-let level = 1;
 
 // ================================
-// 🧪 PREGUNTAS (EJEMPLO NIVEL 1)
+// 🧪 PREGUNTAS
 // ================================
 const questions = [
   {
@@ -40,24 +39,30 @@ const scoreEl = document.getElementById("score");
 const rankingList = document.getElementById("rankingList");
 
 // ================================
-// 🚀 LOGIN
+// 🚀 LOGIN (ROBUSTO)
 // ================================
 document.getElementById("startBtn").onclick = async () => {
   const nickname = document.getElementById("nickname").value.trim();
   if (!nickname) return;
 
-  let { data } = await supabase
+  const { data, error } = await supabaseClient
     .from("users")
     .select("*")
     .eq("nickname", nickname)
-    .single();
+    .maybeSingle(); // 👈 CLAVE
+
+  if (error) {
+    console.error(error);
+    return;
+  }
 
   if (!data) {
-    const res = await supabase
+    const res = await supabaseClient
       .from("users")
       .insert({ nickname, total_points: 0 })
       .select()
       .single();
+
     user = res.data;
   } else {
     user = data;
@@ -91,7 +96,7 @@ function loadQuestion(index) {
 }
 
 // ================================
-// ✅ VALIDAR RESPUESTA
+// ✅ RESPUESTA
 // ================================
 async function checkAnswer(answer, correct, index) {
   if (answer === correct) {
@@ -101,7 +106,7 @@ async function checkAnswer(answer, correct, index) {
     totalPoints += 10;
     scoreEl.textContent = totalPoints;
 
-    await supabase
+    await supabaseClient
       .from("users")
       .update({ total_points: totalPoints })
       .eq("id", user.id);
@@ -116,10 +121,10 @@ async function checkAnswer(answer, correct, index) {
 }
 
 // ================================
-// 🏆 RANKING GLOBAL (CORRECTO)
+// 🏆 RANKING
 // ================================
 async function loadRanking() {
-  const { data } = await supabase
+  const { data } = await supabaseClient
     .from("users")
     .select("nickname, total_points")
     .order("total_points", { ascending: false })
@@ -135,9 +140,9 @@ async function loadRanking() {
 }
 
 // ================================
-// 🔴 REALTIME (RANKING EN VIVO)
+// 🔴 REALTIME
 // ================================
-supabase
+supabaseClient
   .channel("ranking-realtime")
   .on(
     "postgres_changes",
@@ -146,8 +151,11 @@ supabase
       schema: "public",
       table: "users"
     },
-    () => {
-      loadRanking();
-    }
+    () => loadRanking()
   )
   .subscribe();
+
+// ================================
+// 🔁 POLLING RESPALDO
+// ================================
+setInterval(loadRanking, 5000);
